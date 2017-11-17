@@ -1,0 +1,32 @@
+#!/bin/bash
+set -ex
+
+output=src/lib.rs
+INCLUDE=${INCLUDE-/opt/conda/envs/pytorch-py35/lib/python3.5/site-packages/torch/lib/include}
+
+if ! which bindgen 2>/dev/null 1>/dev/null
+then
+  echo 'Please install `bindgen` for Rust (`cargo install bindgen`)' >&2
+  echo 'and ensure it is on the PATH.' >&2
+  exit 2
+fi
+
+# Bindgen doesn't work on OS X without this.
+xcode='/Applications/Xcode.app'
+xcode_libs='Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/'
+if [ -d "$xcode" ]
+then
+  export DYLD_LIBRARY_PATH="$xcode/$xcode_libs":"$DYLD_LIBRARY_PATH"
+fi
+
+echo "Generating $output" >&2
+
+mkdir -p tmp/
+
+cat > tmp/headers.h <<\EOF
+#include "TH/TH.h"
+EOF
+
+gcc -I${INCLUDE} -E tmp/headers.h > tmp/expanded.h
+mkdir -p src
+bindgen --no-unstable-rust --no-derive-debug --builtins tmp/expanded.h -o "$output"

@@ -1,0 +1,10 @@
+[package]
+name = "torch"
+version = "0.1.0"
+authors = ["Alex Newman <posix4e@gmail.com>"]
+license = "MIT"
+keywords = ["ml", "torch"]
+repository = "http://github.com/posix4e/rust-torch"
+description = "Thin torch bindings for rust"
+
+[dependencies]
